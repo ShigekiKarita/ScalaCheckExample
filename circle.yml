@@ -1,0 +1,13 @@
+general:
+  artifacts:
+    - "target/*/scoverage-report"
+
+dependencies:
+  override:
+    - "sbt scoverage:compile"
+
+test:
+  override:
+    - "sbt scoverage:test"
+  post:
+    - "sbt coveralls"
