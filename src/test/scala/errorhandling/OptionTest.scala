@@ -1,49 +1,44 @@
 package errorhandling
 
-import org.scalacheck.Properties
-import org.scalacheck.Prop.forAll
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.{MustMatchers, FlatSpec}
 
-
-object OptionTest extends Properties("Option[Int]") {
+class OptionTest extends FlatSpec with MustMatchers with GeneratorDrivenPropertyChecks {
+  implicit override val generatorDrivenConfig = PropertyCheckConfig(workers = 8, minSuccessful = 200)
   val none: Option[Int] = None
 
-  property("get Some") = forAll {
-    (a: Int) => Some(a).get == a
+  "Some(a).get" should "be a" in forAll {
+    (a: Int) => {
+      Some(a).get    mustBe a
+      Some(none).get mustBe None
+    }
   }
 
-  property("get None") = forAll {
-    (a: Int) => Some(none).get == None
+  "Some(a).map(f)" should "be f(a): A unless it's None" in forAll {
+    (a: Int, b: Int) => {
+      Some(a).map(_ * b) mustBe Some(a * b)
+      none.map(_ * b)    mustBe None
+    }
   }
 
-  property("map Some") = forAll {
-    (a: Int, b: Int) => Some(a).map(_ * b) == Some(a * b)
+  "Some(a).flatMap(f)" should "be f(a): Option[A] unless it's None" in forAll {
+    (a: Int, b: Int) => {
+      Some(a).flatMap(x => Some(x * b)) mustBe Some(a * b)
+      none.flatMap(x => Some(x * a))    mustBe None
+    }
   }
 
-  property("map None") = forAll {
-    (a: Int) => none.map(_ * a) == None
+  "Some(a).getOrElse(b)" should "be a unless it's None else b" in forAll {
+    (a: Int) => {
+      Some(a).getOrElse(() => 0) mustBe a
+      none.getOrElse(a)          mustBe a
+    }
   }
 
-  property("flatMap Some") = forAll {
-    (a: Int, b: Int) => Some(a).flatMap(x => Some(x * b)) == Some(a * b)
-  }
-
-  property("flatMap None") = forAll {
-    (a: Int) => none.flatMap(x => Some(x * a)) == None
-  }
-
-  property("getOrElse Some") = forAll {
-    (a: Int) => Some(a).getOrElse(() => 0) == a
-  }
-
-  property("getOrElse None") = forAll {
-    (a: Int) => none.getOrElse(a) == a
-  }
-
-  property("orElse Some") = forAll {
-    (a: Int) => Some(a).orElse[Int](none) == Some(a)
-  }
-
-  property("orElse None") = forAll {
-    (a: Int) => none.orElse(Some(a)) == Some(a)
+  "Some(a).orElse(b)" should "be Some(a) unless it's None else Some(b)" in forAll {
+    (a: Int) => {
+      Some(a).orElse[Int](none) mustBe Some(a)
+      none.orElse(Some(a))      mustBe Some(a)
+    }
   }
 }
