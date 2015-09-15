@@ -1,0 +1,5 @@
+package datastructures
+
+class Tree {
+
+}
