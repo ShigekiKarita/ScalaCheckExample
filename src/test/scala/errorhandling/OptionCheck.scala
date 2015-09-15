@@ -1,7 +1,8 @@
 package errorhandling
 
-import org.scalacheck.Properties
 import org.scalacheck.Prop._
+import org.scalacheck.Properties
+
 
 object OptionCheck extends Properties("Option[Int]") {
   val none: Option[Int] = None

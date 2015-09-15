@@ -1,10 +1,10 @@
 package errorhandling
 
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{MustMatchers, FlatSpec}
+import testutils.ScalaTestCommon
 
-class OptionTest extends FlatSpec with MustMatchers with GeneratorDrivenPropertyChecks {
-  implicit override val generatorDrivenConfig = PropertyCheckConfig(workers = 8, minSuccessful = 200)
+
+class OptionTest extends ScalaTestCommon {
+
   val none: Option[Int] = None
 
   "Some(a).get" should "be a" in forAll {
