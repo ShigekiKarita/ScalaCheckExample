@@ -41,4 +41,20 @@ class OptionTest extends ScalaTestCommon {
       none.orElse(Some(a))      mustBe Some(a)
     }
   }
+
+  "Option.filter" should "be" in forAll {
+    a: Boolean => {
+      val result = Some(a).filter(_ => a)
+      if (a) result mustBe Some(a)
+      else result mustBe None
+    }
+  }
+
+  "Option.mean" should "be" in forAll {
+    ds: List[Double] => {
+      val xs = ds.map(_ / Double.MaxValue) // to avoid the numeric-flow
+      val result = Option.mean(xs).getOrElse(0.0) * xs.length
+      result mustBe (xs.sum +- math.ulp(result) * eps)
+    }
+  }
 }

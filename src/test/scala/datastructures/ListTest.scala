@@ -32,15 +32,35 @@ class ListTest extends ScalaTestCommon {
     }
 
   "List.tail(Cons(x, xs))" should "be xs" in forAll {
-    (x: Int, xs: List[Int]) => List.tail(Cons(x, xs)) mustBe xs
+    (x: Int, xs: List[Int]) => {
+      List.tail(Cons(x, xs))  mustBe xs
+      List.tail(Nil) mustBe Nil
+    }
   }
 
   "List.setHead(Cons(x, xs), h)" should "be Cons(h, xs)" in forAll {
     (x: Int, h: Int, xs: List[Int]) => List.setHead(Cons(x, xs), h) mustBe Cons(h, xs)
   }
 
+  "List.drop" should "be" in forAll {
+    (xs: List[Int], ys: List[Int]) => List.drop(List.append(xs, ys), List.length(xs)) mustBe ys
+  }
+
+  "List.dropWhile" should "be" in forAll {
+    (xs: List[Int], ys: List[Int], n: Int) => {
+      val i = n min (Int.MaxValue - 1) // to avoid the numerical-overflow
+      val x = List.map(xs)((i + 1) max)
+      val y = List.map(ys)(i min)
+      List.dropWhile[Int](List.append(x, y), i <) mustBe y
+    }
+  }
+
   "List.init(xs ++ x)" should "be xs" in forAll {
     (x: Int, xs: List[Int]) => List.init(List.append(xs, Cons(x, Nil))) mustBe xs
+  }
+
+  "List.init(Nil)" should "be Nil" in {
+    List.init(Nil) mustBe Nil
   }
 
   "List.length(xs ++ ys)" should "be List.length(xs) + List.length(ys)" in forAll {
@@ -48,21 +68,31 @@ class ListTest extends ScalaTestCommon {
   }
 
   "List.sumFoldLeft" should "be equal to List.sum" in forAll {
-    (xs: List[Int]) => List.sumFoldLeft(xs) mustBe List.sum(xs)
+    (xs: List[Int]) => {
+      val result = List.sumFoldLeft(xs)
+      result mustBe List.sum(xs)
+      result mustBe List.sum2(xs)
+    }
   }
 
-  /* FIXME: it's dead
-  "List.productFoldLeft" should "be equal to List.product" in forAll {
-    (xs: List[Double]) => List.productFoldLeft(xs) mustBe (List.product(xs) +- math.ulp(a))
+  "List.productFoldLeft" should "be equal to List.product(2)" in forAll {
+    (xs: List[Double]) => {
+      val rs = List.map(xs)(_ / Double.MaxValue) // to avoid the numeric-flow
+      val result = List.productFoldLeft(rs)
+      result mustBe (List.product(rs)  +- math.ulp(result) * eps)
+      result mustBe (List.product2(rs) +- math.ulp(result) * eps)
+    }
   }
-  */
 
   "List.appendFoldRight" should "be equal to List.append" in forAll {
     (xs: List[Int], ys: List[Int]) => List.appendFoldRight(xs, ys) mustBe List.append(xs, ys)
   }
 
   "List.reverse" should "be" in forAll {
-    xs: List[Int] => List.reverse(List.reverse(xs)) mustBe xs
+    xs: List[Int] => {
+      List.reverse(List.reverse(xs)) mustBe xs
+      List.foldLeftR(xs, 0)(_ + _)   mustBe List.foldLeft(xs, 0)(_ + _)
+    }
   }
 
   "List.flatten" should "be" in forAll {
@@ -70,7 +100,7 @@ class ListTest extends ScalaTestCommon {
   }
 
   "List.map" should "be" in forAll {
-    xs: List[Int] => List.sum(List.map(xs)(_ + 1)) mustBe List.sum(xs) + List.length(xs)
+    xs: List[Int] => List.sum(List.map(xs)(1+)) mustBe List.sum(xs) + List.length(xs)
   }
 
   val idOdd = (x: Int) => x % 2 == 0
@@ -119,6 +149,9 @@ class ListTest extends ScalaTestCommon {
       List.hasSubsequence(xyzs, xs) mustBe true
       List.hasSubsequence(xyzs, ys) mustBe true
       List.hasSubsequence(xyzs, zs) mustBe true
+      if (ys != Nil && zs != Nil) {
+        List.hasSubsequence(xs, xyzs) mustBe false
+      }
     }
   }
 }

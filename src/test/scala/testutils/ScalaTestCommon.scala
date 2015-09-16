@@ -9,5 +9,6 @@ class ScalaTestCommon extends FlatSpec with MustMatchers with GeneratorDrivenPro
     workers = 8,
     minSuccessful = 10000
   )
+  val eps = 10.0
 }
 
