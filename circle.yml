@@ -8,5 +8,3 @@ test:
     - sbt coverageReport
   post:
     - sbt coveralls
-    - mkdir -p $CIRCLE_TEST_REPORTS/junit
-    - cp target/test-reports $CIRCLE_TEST_REPORTS/junit
