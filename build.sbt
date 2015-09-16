@@ -8,9 +8,3 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.11" % "latest.integration" % "test"
 
-// scoverage
-instrumentSettings
-
-org.scoverage.coveralls.CoverallsPlugin.coverallsSettings
-
-ScoverageKeys.highlighting := true

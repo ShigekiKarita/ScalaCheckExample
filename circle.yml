@@ -2,12 +2,11 @@ general:
   artifacts:
     - "target/*/scoverage-report"
 
-dependencies:
-  override:
-    - "sbt scoverage:compile"
-
 test:
   override:
-    - "sbt scoverage:test"
+    - sbt clean coverage test
+    - sbt coverageReport
   post:
-    - "sbt coveralls"
+    - sbt coveralls
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit
+    - cp target/test-reports $CIRCLE_TEST_REPORTS/junit
