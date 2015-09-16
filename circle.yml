@@ -2,9 +2,12 @@ general:
   artifacts:
     - "target/*/scoverage-report"
 
+dependencies:
+  override:
+    - "sbt scoverage:compile"
+
 test:
   override:
-    - sbt clean coverage test
-    - sbt coverageReport
+    - "sbt scoverage:test"
   post:
-    - sbt coveralls
+    - "sbt coveralls"
