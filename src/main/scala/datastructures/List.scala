@@ -22,6 +22,14 @@ object List {
     if (as.isEmpty) Nil
     else Cons(as.head, apply(as.tail: _*))
 
+  val x = List(1,2,3,4,5) match {
+    case Cons(x, Cons(2, Cons(4, _))) => x
+    case Nil => 42
+    case Cons(x, Cons(y, Cons(3, Cons(4, _)))) => x + y
+    case Cons(h, t) => h + sum(t)
+    case _ => 101
+  }
+
   def append[A](a1: List[A], a2: List[A]): List[A] =
     a1 match {
       case Nil => a2
@@ -47,18 +55,9 @@ object List {
 
   def setHead[A](l: List[A], h: A): List[A] = Cons(h, tail(l))
 
-  @tailrec
-  def drop[A](l: List[A], n: Int): List[A] =
-    if (n == 0) l
-    else drop(tail(l), n - 1)
+  def drop[A](l: List[A], n: Int): List[A] = sys.error("todo")
 
-  @tailrec
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
-    case Nil => Nil
-    case Cons(x, xs) =>
-      if (f(x)) dropWhile(xs, f)
-      else l
-  }
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = sys.error("todo")
 
   def init[A](l: List[A]): List[A] = l match {
     case Nil => Nil
