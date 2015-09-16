@@ -1,9 +1,17 @@
 package errorhandling
 
-import testutils.ScalaTestCommon
+import org.scalacheck.{Arbitrary, Gen}
+import test.ScalaTestCommon
 
 
 class OptionTest extends ScalaTestCommon {
+
+  implicit def arbOption[T](implicit a: Arbitrary[T]): Arbitrary[Option[T]] =
+    Arbitrary {
+      val genNone = Gen.const(None)
+      val genSome = for { x <- Arbitrary.arbitrary[T] } yield Some(x)
+      Gen.frequency((1, genNone), (9, genSome))
+    }
 
   val none: Option[Int] = None
 
@@ -55,6 +63,58 @@ class OptionTest extends ScalaTestCommon {
       val xs = ds.map(_ / Double.MaxValue) // to avoid the numeric-flow
       val result = Option.mean(xs).getOrElse(0.0) * xs.length
       result mustBe (xs.sum +- math.ulp(result) * eps)
+    }
+  }
+
+  "Option.variance" should "be" in forAll (Gen.listOfN(100, Gen.choose(-1.0, 1.0))) {
+    xs: List[Double] => {
+      val s = math.sqrt(Option.variance(xs).getOrElse(1.0))
+      val m = Option.mean(xs).getOrElse(0.0)
+      if (s != 0.0) {
+        val result = Option.variance(xs.map(x => (x - m) / s)).getOrElse(1.0)
+        result mustBe (1.0 +- math.ulp(s) * eps)
+      }
+    }
+  }
+
+  "Option.lift" should "be" in forAll {
+    (x: Option[Int], i: Double) => Option.lift[Int, Double](i *)(x) mustBe x.map(i *)
+  }
+
+  "Option.sequence and Option.map2" should "be" in forAll {
+    xs: List[Option[Int]] => {
+      val result = Option.sequence(xs)
+      result.map(_.sum) mustBe xs.foldLeft[Option[Int]](Some(0))(Option.map2(_, _)(_ + _))
+      if (result != None) {
+        result.getOrElse(List()) mustBe xs.map(_.getOrElse(0))
+      }
+    }
+  }
+  
+  // Option usage
+  def Try[A](a: => A): Option[A] =
+    try Some(a)
+    catch { case e: Exception => None }
+
+  def insuranceRateQuote(age: Int, tickets: Int): Double =
+    (age + tickets).toDouble
+
+  def parseInsuranceRateQuote(age: String, tickets: String): Option[Double] = {
+    val optAge = Try(age.toInt)
+    val optTickets = Try(tickets.toInt)
+    Option.map2(optAge, optTickets)(insuranceRateQuote)
+  }
+  
+  def parseInts(a: List[String]): Option[List[Int]] =
+    Option.sequence(a map (i => Try(i.toInt)))
+
+  "Option.traverse" should "be" in forAll {
+    is: List[Option[Int]] => {
+      val xs = is
+        .map(_.getOrElse(0))
+        .map(_.toString)
+        .map(x => if (x == "0") "None" else x)
+      Option.traverse(xs)(x => Try(x.toInt)) mustBe parseInts(xs)
     }
   }
 }

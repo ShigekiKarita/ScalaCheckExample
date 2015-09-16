@@ -1,6 +1,6 @@
 package datastructures
 
-import testutils.ScalaTestCommon
+import test.ScalaTestCommon
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Arbitrary.arbitrary
 import scala.annotation.tailrec
