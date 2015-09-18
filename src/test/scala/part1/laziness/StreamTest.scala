@@ -7,21 +7,43 @@ class StreamTest extends ScalaTestCommon {
   def toStream[T](xs: List[T]): Stream[T] =
     xs.foldRight[Stream[T]](Empty)((x, z) => Cons(() => x, () => z))
 
-  "Stream.head & Stream.headOption" should "be" in {
+  "Stream.Cons" should "be" in {
     var i = 0
-    val x = Cons[Int](() => {i += 1; i}, () => Stream[Int]())
+    val lx = Cons[Int](() => {i += 1; i}, () => Stream[Int]())
 
-    // lazy evaluation
-    val _ = x.head
+    // lazy
+    var _0 = lx.head
     i mustBe 0
-    // strict evaluation
-    x.headOption
-    x.headOption
+    var _1 = lx.head
+    i mustBe 0
+
+    // strict
+    lx.headOption
+    i mustBe 1
+    lx.headOption
     i mustBe 2
   }
 
+  "Stream.cons" should "be cached" in {
+    // lazy evaluation
+    var i = 0
+    val sx = Stream.cons[Int]({i += 1; i}, Stream[Int]())
+
+    sx.headOption // evaluated once
+    i mustBe 1
+    sx.headOption // never evaluated twice
+    i mustBe 1
+  }
+
+  "Stream.empty.headOption" should "be None" in {
+    Stream.empty.headOption mustBe None
+  }
+
   "Stream.toList" should "be" in forAll {
-    xs: List[Int] => toStream(xs).toList mustBe xs
+    (x: Int, y: Int, z: Int, xs: List[Int]) => {
+      Stream(x, y, z).toList mustBe List(x, y, z)
+      toStream(xs).toList mustBe xs
+    }
   }
 
   "Stream.take & Stream.drop" should "be" in forAll {
