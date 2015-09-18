@@ -49,7 +49,8 @@ object Option {
     }
 
   def sequence[A](a: List[Option[A]]): Option[List[A]] =
-    a.foldRight[Option[List[A]]](Some(Nil))(map2(_, _)(_ :: _))
+    // a.foldRight[Option[List[A]]](Some(Nil))(map2(_, _)(_ :: _))
+    traverse(a)(x => x)
 
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] =
     a match {

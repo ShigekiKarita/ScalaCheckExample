@@ -37,14 +37,14 @@ class OptionTest extends ScalaTestCommon {
   }
 
   "Some(a).getOrElse(b)" should "be a unless it's None else b" in forAll {
-    (a: Int) => {
+    a: Int => {
       Some(a).getOrElse(() => 0) mustBe a
       none.getOrElse(a)          mustBe a
     }
   }
 
   "Some(a).orElse(b)" should "be Some(a) unless it's None else Some(b)" in forAll {
-    (a: Int) => {
+    a: Int => {
       Some(a).orElse[Int](none) mustBe Some(a)
       none.orElse(Some(a))      mustBe Some(a)
     }
@@ -96,15 +96,6 @@ class OptionTest extends ScalaTestCommon {
     try Some(a)
     catch { case e: Exception => None }
 
-  def insuranceRateQuote(age: Int, tickets: Int): Double =
-    (age + tickets).toDouble
-
-  def parseInsuranceRateQuote(age: String, tickets: String): Option[Double] = {
-    val optAge = Try(age.toInt)
-    val optTickets = Try(tickets.toInt)
-    Option.map2(optAge, optTickets)(insuranceRateQuote)
-  }
-  
   def parseInts(a: List[String]): Option[List[Int]] =
     Option.sequence(a map (i => Try(i.toInt)))
 
