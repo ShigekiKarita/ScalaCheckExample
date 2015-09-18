@@ -1,4 +1,4 @@
-package datastructures
+package part1.datastructures
 
 import test.ScalaTestCommon
 import org.scalacheck.{Arbitrary, Gen}

@@ -1,4 +1,4 @@
-package errorhandling
+package part1.errorhandling
 
 sealed trait Either[+L, +R] {
   def map[RR](f: R => RR): Either[L, RR] =

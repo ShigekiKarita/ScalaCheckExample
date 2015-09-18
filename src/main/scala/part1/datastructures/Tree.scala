@@ -1,4 +1,4 @@
-package datastructures
+package part1.datastructures
 
 sealed trait Tree[+A] {
   def +[B>: A](that: Tree[B]): Tree[B] = this match {

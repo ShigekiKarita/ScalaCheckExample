@@ -1,4 +1,4 @@
-package errorhandling
+package part1.errorhandling
 
 import org.scalacheck.Prop._
 import org.scalacheck.Properties

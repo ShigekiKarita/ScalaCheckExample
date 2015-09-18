@@ -1,4 +1,4 @@
-package errorhandling
+package part1.errorhandling
 
 case class Person(name: Name, age: Age)
 sealed class Name(val value: String)

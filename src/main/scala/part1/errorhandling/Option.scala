@@ -1,4 +1,4 @@
-package errorhandling
+package part1.errorhandling
 
 // hide std library `Option`, `Some` and `Either`, since we are writing our own in this chapter
 import scala.{Either => _, Option => _, Some => _}

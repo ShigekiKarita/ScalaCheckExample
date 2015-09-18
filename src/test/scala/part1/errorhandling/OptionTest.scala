@@ -1,4 +1,4 @@
-package errorhandling
+package part1.errorhandling
 
 import org.scalacheck.{Arbitrary, Gen}
 import test.ScalaTestCommon
