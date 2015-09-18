@@ -1,4 +1,4 @@
-package test
+package common
 
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{MustMatchers, FlatSpec}

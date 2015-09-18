@@ -1,7 +1,7 @@
 package part1.errorhandling
 
 import org.scalacheck.{Gen, Arbitrary}
-import test.ScalaTestCommon
+import common.ScalaTestCommon
 
 
 class EitherTest extends ScalaTestCommon {

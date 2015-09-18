@@ -1,7 +1,7 @@
 package part1.datastructures
 
 import org.scalacheck.{Gen, Arbitrary}
-import test.ScalaTestCommon
+import common.ScalaTestCommon
 
 class TreeTest extends ScalaTestCommon {
 

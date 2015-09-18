@@ -1,7 +1,7 @@
 package part1.errorhandling
 
 import org.scalacheck.{Arbitrary, Gen}
-import test.ScalaTestCommon
+import common.ScalaTestCommon
 
 
 class OptionTest extends ScalaTestCommon {
