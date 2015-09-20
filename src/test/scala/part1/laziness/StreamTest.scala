@@ -1,6 +1,7 @@
 package part1.laziness
 
 import common.ScalaTestCommon
+import org.scalacheck.Gen
 
 
 class StreamTest extends ScalaTestCommon {
@@ -49,7 +50,8 @@ class StreamTest extends ScalaTestCommon {
   "Stream.take & Stream.drop" should "be" in forAll {
     (xs: List[Int], i: Int) => {
       val s = toStream(xs)
-      s.take(i).toList ::: s.drop(i).toList mustBe xs
+      s.take(i).toList mustBe xs.take(i)
+      s.drop(i).toList mustBe xs.drop(i)
     }
   }
 
@@ -95,6 +97,48 @@ class StreamTest extends ScalaTestCommon {
       s.filter(i <).toList mustBe xs.filter(i <)
       s.append(t).toList mustBe xs ++ ys
       s.flatMap(Stream(_, i)).toList mustBe xs.flatMap(List(_, i))
+    }
+  }
+
+  "Stream.ones" should "be" in forAll(lengthGen) {
+    i: Int => {
+      val expected = List.fill(i)(1)
+      Stream.ones.take(i).toList mustBe expected
+      Stream.ones.takeWhile(1 ==).take(i).toList mustBe expected
+      Stream.ones map (1 +) exists (_ % 2 == 0) mustBe true
+      Stream.ones.forAll(1 !=) mustBe false
+    }
+  }
+
+  "Stream.constant" should "be" in forAll(lengthGen, doubleGen) {
+    (i: Int, d: Double) => Stream.constant(d).take(i).toList mustBe List.fill(i)(d)
+  }
+
+  "Stream.from" should "be" in forAll(intGen, lengthGen) {
+    (i: Int, j: Int) => Stream.from(i).take(j).toList mustBe List.range(i, i + j)
+  }
+
+  "Stream.fibs" should "be" in {
+    Stream.fibs.take(7).toList mustBe List(0, 1, 1, 2, 3, 5, 8)
+  }
+
+  "Stream.unfold companions" should "be" in forAll(lengthGen, doubleGen, intGen) {
+    (len: Int, d: Double, i: Int) => {
+      Stream.fibsUnfold.take(len).toList mustBe Stream.fibs.take(len).toList
+      Stream.constantUnfold(d).take(len).toList mustBe Stream.constant(d).take(len).toList
+      Stream.fromUnfold(i).take(len).toList mustBe Stream.from(i).take(len).toList
+      Stream.onesUnfold.take(len).toList mustBe Stream.ones.take(len).toList
+    }
+  }
+
+  "Stream.unfold methods" should "be" in forAll {
+    (xs: List[Int], ys: List[Int], d: Double, i: Int) => {
+      val s = toStream(xs)
+      val t = toStream(ys)
+      s.mapUnfold(d *).toList mustBe xs.map(d *)
+      s.takeUnfold(i).toList mustBe xs.take(i)
+      s.takeWhile(i <).toList mustBe xs.takeWhile(i <)
+      s.zipWith(t)((_, _)).toList mustBe xs.zip(ys)
     }
   }
 
