@@ -1,11 +1,9 @@
 package part1.laziness
 
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default
-
-import scala.annotation.tailrec
 
 trait Stream[+A] {
   import Stream._
+
   def headOption: Option[A] =
     this match {
       case Empty => None
@@ -98,6 +96,37 @@ trait Stream[+A] {
       case (Cons(r, rs), Cons(l, ls)) => Some(f(r(), l()), (rs(), ls()))
       case _ => None
     }
+
+  def zip[B](that: Stream[B]) = zipWith(that)((_, _))
+
+  def zipAll[B](that: Stream[B]): Stream[(Option[A], Option[B])] =
+    unfold((this, that)) {
+      case (Empty, Empty) => None
+      case (Cons(r, rs), Empty) => Some((
+        (Some(r()), None),
+        (rs(), Empty)))
+      case (Empty, Cons(l, ls)) => Some((
+        (None, Some(l())),
+        (Empty, ls())))
+      case (Cons(r, rs), Cons(l, ls)) => Some((
+        (Some(r()), Some(l())),
+        (rs(), ls())))
+    }
+
+  def startWith[AA>:A](that: Stream[AA]): Boolean =
+    zip(that).forAll(x => x._1 == x._2)
+
+  def tails: Stream[Stream[A]] =
+    cons(this, unfold(this) {
+      case Cons(_, t) => Some(t(), t())
+      case Empty => None
+    })
+
+  def hasSubsequnce[A](that: Stream[A]): Boolean =
+    tails exists (_ startWith that)
+
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] =
+    tails.map(a => a.foldRight(z)(f))
 }
 
 case object Empty extends Stream[Nothing]

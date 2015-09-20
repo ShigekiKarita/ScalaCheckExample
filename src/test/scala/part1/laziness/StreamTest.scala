@@ -1,7 +1,6 @@
 package part1.laziness
 
 import common.ScalaTestCommon
-import org.scalacheck.Gen
 
 
 class StreamTest extends ScalaTestCommon {
@@ -137,9 +136,50 @@ class StreamTest extends ScalaTestCommon {
       val t = toStream(ys)
       s.mapUnfold(d *).toList mustBe xs.map(d *)
       s.takeUnfold(i).toList mustBe xs.take(i)
-      s.takeWhile(i <).toList mustBe xs.takeWhile(i <)
-      s.zipWith(t)((_, _)).toList mustBe xs.zip(ys)
+      s.takeWhileUnfold(i <).toList mustBe xs.takeWhile(i <)
+      s.zip(t).toList mustBe xs.zip(ys)
     }
   }
 
+  "Stream.zipAll" should "be" in forAll {
+    (xs: List[Int], ys: List[Int]) => {
+      val (x, xl) = (toStream(xs), xs.length)
+      val (y, yl) = (toStream(ys), ys.length)
+      val diffLen = math.abs(xl - yl)
+      val expected =
+        if (xl > yl) (xs.map(Some(_)), ys.map(Some(_)) ++ List.fill(diffLen)(None))
+        else (xs.map(Some(_)) ++ List.fill(diffLen)(None), ys.map(Some(_)))
+
+      val s = x.zipAll(y)
+      val result = (s.map(_._1).toList, s.map(_._2).toList)
+      result mustBe expected
+    }
+  }
+
+  "Stream.startWith" should "be" in forAll {
+    (xs: List[Int], ys: List[Int]) => {
+      val s = toStream(xs)
+      val t = toStream(xs)
+      s.append(t).startWith(s) mustBe true
+    }
+  }
+
+  "Stream.tails" should "be" in {
+    val result = Stream(1,2,3).tails.map(_.toList).toList
+    val expected = List(List(1,2,3), List(2,3), List(3), List())
+    result mustBe expected
+  }
+
+  "Stream.hasSubsequence" should "be" in forAll {
+    (xs: List[Int], ys: List[Int], zs: List[Int]) => {
+      val x = toStream(xs)
+      val y = toStream(ys)
+      val z = toStream(zs)
+      (x append y append z).hasSubsequnce(y) mustBe true
+    }
+  }
+
+  "Stream.scanRight" should "be" in {
+    Stream(1,2,3).scanRight(0)(_ + _).toList mustBe List(6,5,3,0)
+  }
 }

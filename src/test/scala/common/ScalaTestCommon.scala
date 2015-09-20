@@ -8,7 +8,7 @@ import org.scalatest.{MustMatchers, FlatSpec}
 class ScalaTestCommon extends FlatSpec with MustMatchers with GeneratorDrivenPropertyChecks {
   implicit override val generatorDrivenConfig = PropertyCheckConfig(
     workers = 8,
-    minSuccessful = 1000
+    minSuccessful = 10000
   )
   val eps = 1.0E2
   val lengthGen = Gen.choose(0, 100)
