@@ -57,4 +57,25 @@ class StateTest extends ScalaTestCommon {
   "RNG.ints" should "be" in forAll (lengthGen, intGen) {
     (x: Int, y: Int) => RNG.ints(x)(RNG.SimpleRNG(x))._1.length mustBe x
   }
+
+  "State" should "be" in forAll {
+    (x: Int, y: Int) => {
+      val rng = RNG.SimpleRNG(x)
+      State.unit(y).run(rng) mustBe RNG.unit(y)(rng)
+    }
+  }
+
+  "Machine.simulate" should "be" in {
+    val r0 = new Machine(false, 5, 10)
+    val r1 = Machine.simulate(List(Turn, Coin, Turn, Coin, Turn, Coin, Turn, Coin)).run(r0)
+    r1._1 mustBe (14, 1)
+    val r2 = Machine.simulate(List(Turn, Turn)).run(r1._2)
+    r2._1 mustBe (14, 0)
+    val r3 = new Machine(false, 1, 0)
+    val r4 = Machine.simulate(List(Coin, Coin)).run(r3)
+    r4._2 mustBe r3
+    val r5 = new Machine(true, 1, 0)
+    val r6 = Machine.simulate(List(Turn, Turn)).run(r5)
+    r6._2 mustBe r5
+  }
 }
